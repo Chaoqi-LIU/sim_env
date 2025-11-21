@@ -48,7 +48,7 @@ $ rm -rf CoppeliaSim_Edu_V4_1_0_Ubuntu20_04.tar.xz
 ```
 4. Generate dataset with
 ```
-python scripts/gen_data.py metaworld --help
+python scripts/gen_data.py rlbench --help
 ```
 
 ## For LIBERO

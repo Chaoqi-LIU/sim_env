@@ -20,6 +20,10 @@ $ wget https://mujoco.org/download/mujoco210-linux-x86_64.tar.gz -O mujoco210.ta
 
 $ tar -xvzf mujoco210.tar.gz
 ```
+4. Generate dataset with
+```
+python scripts/gen_data.py metaworld --help
+```
 
 ## For RLBench
 
@@ -42,6 +46,10 @@ $ mkdir -p $COPPELIASIM_ROOT && tar -xf CoppeliaSim_Edu_V4_1_0_Ubuntu20_04.tar.x
 
 $ rm -rf CoppeliaSim_Edu_V4_1_0_Ubuntu20_04.tar.xz
 ```
+4. Generate dataset with
+```
+python scripts/gen_data.py metaworld --help
+```
 
 ## For LIBERO
 1. find a desired path and clone the repo
@@ -53,6 +61,34 @@ git clone https://github.com/Lifelong-Robot-Learning/LIBERO.git
 cd LIBERO
 pip install -e .
 ```
+3. Download datasets
+```
+python benchmark_scripts/download_libero_datasets.py --datasets libero_[spatial/object/goal/100]
+```
+4. Check `scripts/convert_libero_dataset.py`
+
+## For RoboCasa
+1. Download assets with 
+```
+python -m robocasa.scripts.download_kitchen_assets
+```
+2. Configure macros 
+```
+python -m robocasa.scripts.setup_macros
+```
+3. Edit `DATASET_BASE_PATH` in `robocasa/macros_private.py` to desired data folder for data downloading
+4. Download datasets 
+```
+python -m robocasa.scripts.download_datasets --tasks [...] --ds_types [mg_im/human_im/human_raw]
+```
+5. Check `scripts/convert_robocasa_dataset.py`
+
+## For RoboMimic
+1. Download datasets 
+```
+python -m robomimic.scripts.download_datasets --download_dir data/robomimic/hdf5_datasets --tasks [...] --dataset_types ph --hdf5_types raw
+```
+2. Check `scripts/convert_robomimic_dataset.py`
 
 ## Notes
 * RoboCasa requires nightly `robosuite`, install this version

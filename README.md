@@ -1,3 +1,7 @@
+# A collection of simulation benchmarks for robot policy research
+
+Currently we included `robocasa`, `robomimic`, `rlbench`, `metaworld`, `libero`. They all supports asynchronous vectorized policy evaluation. Find more instructions on each environment below.
+
 ## For MetaWorld
 
 1. Add the following lines to `~/.bashrc`

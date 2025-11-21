@@ -1,0 +1,56 @@
+name: mw-mt4
+
+task_name: mw-mt4
+lazy_eval: true
+
+shape_meta: &shape_meta
+  obs:
+    corner_rgb:
+      shape: [128, 128, 3]
+      type: rgb
+    corner2_rgb:
+      shape: [128, 128, 3]
+      type: rgb
+    corner3_rgb:
+      shape: [128, 128, 3]
+      type: rgb
+    behindGripper_rgb:
+      shape: [128, 128, 3]
+      type: rgb
+    agent_pos:
+      shape: [9]
+      type: state
+  action:
+    shape: [4]
+
+
+env_runner:
+  _target_: policy_research.env_runner.metaworld_runner.MetaworldRunner
+  task_name: mt4
+  n_test: 200
+  n_test_vis: 8
+  n_obs_steps: ${n_obs_steps}
+  n_action_steps: ${n_action_steps}
+  fps: 10
+  n_parallel_envs: 40
+  image_size: 128
+  camera_names: ['corner', 'corner2', 'corner3', 'behindGripper']
+  video_camera: 'corner2'
+  max_episode_steps: 200
+
+
+dataset:
+  _target_: policy_research.dataset.zarr_dataset.ZarrDataset
+  zarr_path: data/metaworld/mt4_N${training.num_demo}.zarr
+  obs_keys:
+    - corner_rgb
+    - corner2_rgb
+    - corner3_rgb
+    - behindGripper_rgb
+    - agent_pos
+  action_key: action
+  n_obs_steps: ${n_obs_steps}
+  n_action_steps: ${horizon}
+  seed: ${seed}
+  val_ratio: 0.1
+  

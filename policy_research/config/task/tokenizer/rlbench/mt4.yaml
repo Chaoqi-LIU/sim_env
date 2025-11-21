@@ -1,0 +1,18 @@
+name: rb-mt4
+
+task_name: rb-mt4
+
+shape_meta:
+  action:
+    shape: [9]  # 7 dof + 2 gripper
+
+dataset:
+  _target_: policy_research.dataset.zarr_dataset.ZarrDataset
+  zarr_path: data/rlbench/mt4_N${training.num_demo}.zarr
+  obs_keys: []
+  action_key: delta_joint_action
+  n_obs_steps: 0
+  n_action_steps: ${horizon}
+  seed: ${seed}
+  val_ratio: 0.1
+  

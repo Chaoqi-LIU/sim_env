@@ -1,0 +1,70 @@
+name: rc-mt4
+
+task_name: rc-mt4
+lazy_eval: true
+
+shape_meta: &shape_meta
+  obs:
+    robot0_agentview_left_rgb:
+      shape: [128, 128, 3]
+      type: rgb
+    robot0_agentview_right_rgb:
+      shape: [128, 128, 3]
+      type: rgb
+    robot0_eye_in_hand_rgb:
+      shape: [128, 128, 3]
+      type: rgb
+    robot0_eef_pos:
+      shape: [3]
+      type: state
+    robot0_eef_quat:
+      shape: [4]
+      type: state
+    robot0_gripper_qpos:
+      shape: [2]
+      type: state
+    # prompt:     # don't think tasks need prompt to differentiate
+    #   shape: []
+    #   type: text
+  action:
+    shape: [12]  # 6 franka ee pos + 1 gripper + torus & base
+
+
+env_runner:
+  _target_: policy_research.env_runner.robocasa_runner.RobocasaRunner
+  task_name: mt4
+  n_test: 200
+  n_test_vis: 8
+  n_obs_steps: ${n_obs_steps}
+  n_action_steps: ${n_action_steps}
+  fps: 20
+  n_parallel_envs: 8
+  image_size: 128
+  camera_names: 
+    - robot0_agentview_left
+    - robot0_agentview_right
+    - robot0_eye_in_hand
+  state_ports:
+    - robot0_eef_pos
+    - robot0_eef_quat
+    - robot0_gripper_qpos
+  max_episode_steps: 500
+
+
+dataset:
+  _target_: policy_research.dataset.zarr_dataset.ZarrDataset
+  zarr_path: data/robocasa/mt4_N${training.num_demo}.zarr
+  obs_keys:
+    - robot0_agentview_left_rgb
+    - robot0_agentview_right_rgb
+    - robot0_eye_in_hand_rgb
+    - robot0_eef_pos
+    - robot0_eef_quat
+    - robot0_gripper_qpos
+    # - prompt
+  action_key: action
+  n_obs_steps: ${n_obs_steps}
+  n_action_steps: ${horizon}
+  seed: ${seed}
+  val_ratio: 0.1
+  

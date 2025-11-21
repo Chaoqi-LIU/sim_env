@@ -1,0 +1,20 @@
+name: droid
+
+task_name: droid100
+
+shape_meta:
+  action:
+    shape: [8]  # 7 dof + 1 gripper
+
+dataset:
+  _target_: policy_research.dataset.droid_dataset.DroidRldsDataset
+  data_dir: data/droid
+  val_ratio: 0.1
+  n_action_steps: ${horizon}
+  n_obs_steps: 0      # no past context
+  shuffle_buffer_size: 100000
+  seed: ${seed}
+  droid_name: droid_100
+  droid_version: 1.0.0
+  filter_dict_path: data/droid/droid100_100_nonidle_ranges.json
+  norm_stats_path: data/droid/droid100_100_norm_stats.npy

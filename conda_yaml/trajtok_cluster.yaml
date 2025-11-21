@@ -1,0 +1,76 @@
+name: trajtok
+channels:
+  - conda-forge
+  # - defaults
+
+dependencies:
+  - python=3.10
+  - pip
+
+  # # ---- EGL / OpenGL / X11 (headless + optional display) ----
+  # - glew
+  # - mesalib
+  # - glfw
+  # - xorg-libx11
+  # - xorg-xproto
+  # - xorg-libxext
+
+  # # ---- To compile MetaWorld (on cluster) ----
+  # - cmake=3.26 
+  # - make 
+  # - ninja
+
+  # ---- python deps ----
+  - einops
+  - hydra-core
+  - wandb
+  - dill
+  - zarr
+  - numba
+  - diffusers
+  - accelerate
+  # - mup
+  # - submitit
+  - gsutil
+  - transformers
+  - av
+  - gymnasium
+
+  # ---- pip packages ----
+  - pip:
+      # pytorch
+      - torch
+      - torchvision
+      - --extra-index-url https://download.pytorch.org/whl/nightly/cu129
+
+      # misc
+      - gdown
+      - vector-quantize-pytorch
+
+      # # drake
+      # - drake
+
+      # robomimic
+      - robomimic==0.2.0
+      # # robocasa
+      # - git+https://github.com/Chaoqi-LIU/robocasa.git@trajtok#egg=robocasa
+      # - git+https://github.com/Chaoqi-LIU/robosuite.git@trajtok#egg=robosuite
+
+      # libero
+      - robosuite==1.4.0
+      - easydict
+      - bddl
+      - cloudpickle
+
+      # # rlbench
+      # - git+https://github.com/Chaoqi-LIU/RLBench.git@factorized_diffusion_policy#egg=RLBench
+
+      # # metaworld
+      # - setuptools==59.5.0
+      # - Cython==0.29.35
+      # - patchelf==0.17.2.0
+      # - git+https://github.com/Chaoqi-LIU/gym.git@factorized_diffusion_policy#egg=gym
+      # - git+https://github.com/Chaoqi-LIU/Metaworld.git@factorized_diffusion_policy#egg=Metaworld
+
+      # # dlimp for rlds dataset
+      # - git+https://github.com/Chaoqi-LIU/dlimp.git@main#egg=dlimp

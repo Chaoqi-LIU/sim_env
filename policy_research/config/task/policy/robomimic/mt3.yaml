@@ -1,0 +1,61 @@
+name: rm-mt3
+
+task_name: rm-mt3
+lazy_eval: true
+
+shape_meta: &shape_meta
+  obs:
+    agentview_rgb:
+      shape: [128, 128, 3]
+      type: rgb
+    robot0_eye_in_hand_rgb:
+      shape: [128, 128, 3]
+      type: rgb
+    robot0_eef_pos:
+      shape: [3]
+      type: state
+    robot0_eef_quat:
+      shape: [4]
+      type: state
+    robot0_gripper_qpos:
+      shape: [2]
+      type: state
+  action:
+    shape: [7]
+
+
+env_runner:
+  _target_: policy_research.env_runner.robomimic_runner.RobomimicRunner
+  task_name: mt3
+  n_test: 150
+  n_test_vis: 6
+  n_obs_steps: ${n_obs_steps}
+  n_action_steps: ${n_action_steps}
+  fps: 20
+  n_parallel_envs: 30
+  image_size: 128
+  camera_names: 
+    - agentview
+    - robot0_eye_in_hand
+  state_ports:
+    - robot0_eef_pos
+    - robot0_eef_quat
+    - robot0_gripper_qpos
+  max_episode_steps: 400
+
+
+dataset:
+  _target_: policy_research.dataset.zarr_dataset.ZarrDataset
+  zarr_path: data/robomimic/mt3_N${training.num_demo}.zarr
+  obs_keys:
+    - agentview_rgb
+    - robot0_eye_in_hand_rgb
+    - robot0_eef_pos
+    - robot0_eef_quat
+    - robot0_gripper_qpos
+  action_key: action
+  n_obs_steps: ${n_obs_steps}
+  n_action_steps: ${horizon}
+  seed: ${seed}
+  val_ratio: 0.1
+  

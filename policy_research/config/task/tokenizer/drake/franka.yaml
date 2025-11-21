@@ -1,0 +1,19 @@
+name: drake-franka
+
+shape_meta:
+  action:
+    shape: [8]  # 7dof + 1 gripper
+
+dt: ???
+num_tokens: ???
+
+dataset:
+  _target_: policy_research.dataset.zarr_dataset.ZarrDataset
+  zarr_path: data/drake/drake_franka_N${training.num_demo}_T${task.tokenizer.num_tokens}_t${task.tokenizer.dt}.zarr
+  obs_keys: []  # tokenizer does not use obs
+  action_key: action
+  n_obs_steps: 0
+  n_action_steps: ${horizon}
+  seed: ${seed}
+  val_ratio: 0.1
+  

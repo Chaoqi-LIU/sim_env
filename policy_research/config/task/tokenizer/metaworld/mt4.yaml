@@ -1,0 +1,18 @@
+name: mw-mt4
+
+task_name: mw-mt4
+
+shape_meta: &shape_meta
+  action:
+    shape: [4]
+
+dataset:
+  _target_: policy_research.dataset.zarr_dataset.ZarrDataset
+  zarr_path: data/metaworld/mt4_N${training.num_demo}.zarr
+  obs_keys: []
+  action_key: action
+  n_obs_steps: 0
+  n_action_steps: ${horizon}
+  seed: ${seed}
+  val_ratio: 0.1
+  

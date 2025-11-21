@@ -1,0 +1,164 @@
+defaults:
+  - _self_
+  - task/policy: robocasa/mt10
+
+name: train_diffpolicy
+_target_: policy_research.workspace.train_policy.TrainPolicyWorkspace
+
+seed: 42
+horizon: 16
+n_action_steps: 8
+n_obs_steps: 2
+task_name: ${task.policy.name}
+shape_meta: ${task.policy.shape_meta}
+
+policy:
+  _target_: policy_research.policy.diffpolicy.DiffusionTransformerPolicy
+
+  shape_meta: ${shape_meta}
+  horizon: ${horizon}
+  n_action_steps: ${n_action_steps}
+  n_obs_steps: ${n_obs_steps}
+
+  obs_encoder:
+    _target_: policy_research.perception.fused_obs_encoder.FusedObservationEncoder
+    _recursive_: false
+    shape_meta: ${shape_meta}
+
+    # vision_encoder:
+    #   _target_: policy_research.perception.clip_vision_encoder.CLIPVisionEncoder
+    #   shape_meta: ${shape_meta}
+    #   out_dim: 256
+    #   model_ckpt: openai/clip-vit-base-patch16
+    #   freeze_model: true
+    #   normalize_feats: true
+    vision_encoder:
+      _target_: policy_research.perception.robomimic_vision_encoder.RobomimicRgbEncoder
+      shape_meta: ${shape_meta}
+      crop_shape: [76, 76]
+    
+    text_encoder:
+      _target_: policy_research.perception.clip_text_encoder.CLIPTextEncoder
+      shape_meta: ${shape_meta}
+      out_dim: 64
+      model_ckpt: openai/clip-vit-base-patch16
+      freeze_model: true
+      normalize_feats: true
+    
+    state_encoder:
+      _target_: policy_research.perception.state_encoder.ProjectionStateEncoder
+      shape_meta: ${shape_meta}
+      out_dim: null   # identity projection
+
+  # backbone model params
+  embed_dim: 256
+  n_layers: 4
+  n_heads: 4
+  dropout: 0.1
+
+  # # DDPM
+  # noise_scheduler:
+  #   _target_: diffusers.schedulers.scheduling_ddpm.DDPMScheduler
+  #   num_train_timesteps: 100
+  #   beta_start: 0.0001
+  #   beta_end: 0.02
+  #   beta_schedule: squaredcos_cap_v2
+  #   variance_type: fixed_small # Yilun's paper uses fixed_small_log instead, but easy to cause Nan
+  #   clip_sample: True # required when predict_epsilon=False
+  #   prediction_type: epsilon # or sample
+  # DDIM
+  num_inference_steps: 10
+  noise_scheduler:
+    _target_: diffusers.schedulers.scheduling_ddim.DDIMScheduler
+    num_train_timesteps: 100  # train with 100 steps, inferece with 10 steps
+    beta_start: 0.0001
+    beta_end: 0.02
+    # beta_schedule is important
+    # this is the best we found
+    beta_schedule: squaredcos_cap_v2
+    clip_sample: True
+    set_alpha_to_one: True
+    steps_offset: 0
+    prediction_type: epsilon
+
+
+training:
+  resume: True
+  allow_bf16: True
+  max_grad_norm: 1.0
+  num_epochs: 1001
+  val_every: 10
+  sample_every: 10
+  rollout_every: 200
+  checkpoint_every: 10
+  lr_scheduler: constant
+  lr_warmup_steps: 200
+  gradient_accumulate_every: 1
+  max_train_steps: null
+  max_val_steps: null
+  max_reconst_steps: null
+  seed: ${seed}
+  use_ema: True
+  num_demo: 5000
+  tqdm_interval_sec: 1.0
+
+ema:
+  _target_: policy_research.model.diffusion.ema_model.EMAModel
+  update_after_step: 0
+  inv_gamma: 1.0
+  power: 0.75
+  min_value: 0.0
+  max_value: 0.9999
+
+optimizer:
+  policy_lr: 5.0e-5
+  obs_enc_lr: 1.0e-5
+  weight_decay: 0.0
+  betas: [0.9, 0.95]
+  
+dataloader:
+  batch_size: 256
+  num_workers: 4
+  shuffle: True
+  pin_memory: True
+  persistent_workers: True
+  drop_last: True
+
+val_dataloader:
+  batch_size: 256
+  num_workers: 4
+  shuffle: False
+  pin_memory: True
+  persistent_workers: True
+  drop_last: True
+
+logging:
+  project: trajtok_dev
+  resume: True
+  mode: online
+  name: ${now:%Y%m%d.%H%M%S}_${name}_${task_name}_N${training.num_demo}
+  tags: ["${name}", "${task_name}"]
+  id: null
+  group: null
+
+checkpoint:
+  topk:
+    monitor_key: mean_success_rate
+    mode: max
+    k: 3
+    format_str: 'ep-{epoch:04d}_sr-{mean_success_rate:.3f}.ckpt'
+  save_last_ckpt: True
+  save_last_snapshot: False
+
+multi_run:
+  run_dir: output/${now:%Y%m%d}/${now:%H%M%S}_${name}_${task_name}_N${training.num_demo}
+  wandb_name_base: ${now:%Y%m%d.%H%M%S}_${name}_${task_name}_N${training.num_demo}
+
+hydra:
+  job:
+    override_dirname: ${name}
+  run:
+    dir: output/${now:%Y%m%d}/${now:%H%M%S}_${name}_${task_name}_N${training.num_demo}
+  sweep:
+    dir: output/${now:%Y%m%d}/${now:%H%M%S}_${name}_${task_name}_N${training.num_demo}
+    subdir: ${hydra.job.num}

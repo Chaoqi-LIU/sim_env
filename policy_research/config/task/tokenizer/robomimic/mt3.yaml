@@ -1,0 +1,18 @@
+name: rm-mt3
+
+task_name: rm-mt3
+
+shape_meta: &shape_meta
+  action:
+    shape: [7]
+
+dataset:
+  _target_: policy_research.dataset.zarr_dataset.ZarrDataset
+  zarr_path: data/robomimic/mt3_N${training.num_demo}.zarr
+  obs_keys: []
+  action_key: action
+  n_obs_steps: 0
+  n_action_steps: ${horizon}
+  seed: ${seed}
+  val_ratio: 0.1
+  

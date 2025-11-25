@@ -34,12 +34,10 @@ policy:
     #   normalize_feats: true
     vision_encoder:
       _target_: policy_research.perception.robomimic_vision_encoder.RobomimicRgbEncoder
-      shape_meta: ${shape_meta}
       crop_shape: [76, 76]
     
     text_encoder:
       _target_: policy_research.perception.clip_text_encoder.CLIPTextEncoder
-      shape_meta: ${shape_meta}
       out_dim: 64
       model_ckpt: openai/clip-vit-base-patch16
       freeze_model: true
@@ -47,7 +45,6 @@ policy:
     
     state_encoder:
       _target_: policy_research.perception.state_encoder.ProjectionStateEncoder
-      shape_meta: ${shape_meta}
       out_dim: null   # identity projection
 
   # backbone model params
